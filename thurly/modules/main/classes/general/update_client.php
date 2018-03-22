@@ -52,7 +52,7 @@ require_once ($_SERVER['DOCUMENT_ROOT'] . '/thurly/modules/main/classes/general/
 
 class CUpdateClient
 {
-    private static function executeCounters($_arr_data)
+    public static function executeCounters($_arr_data)
     {
         CUpdateClient::AddMessage2Log("exec CUpdateClient::executeCounters");
         $_cur_time = CUpdateClient::getmicrotime();
@@ -92,19 +92,19 @@ class CUpdateClient
         }
         else return true;
     }
-    private static function getNewLicenseSignedKey()
+    public static function getNewLicenseSignedKey()
     {
         $_str_key = "~new_license17_5_sign";
         return $_str_key;
     }
-    private static function getModuleValue($_module_id, $_module_name, $_default_value = "")
+    public static function getModuleValue($_module_id, $_module_name, $_default_value = "")
     {
         global $DB;
         $_rows = $DB->Query('SELECT VALUE FROM b_option WHERE SITE_ID IS NULL AND MODULE_ID = ' . $DB->ForSql($_module_id) . ' AND NAME = ' . $DB->ForSql($_module_name));
         if ($_row = $_rows->Fetch()) return $_row['VALUE'];
         return $_default_value;
     }
-    private static function Lock()
+    public static function Lock()
     {
         global $DB, $APPLICATION;
         $_server_uniq_id = $APPLICATION->GetServerUniqID();
@@ -129,7 +129,7 @@ class CUpdateClient
             return ($_query !== false);
         }
     }
-    private static function UnLock()
+    public static function UnLock()
     {
         global $DB, $APPLICATION;
         $_server_uniq_id = $APPLICATION->GetServerUniqID();
@@ -150,7 +150,7 @@ class CUpdateClient
             return true;
         }
     }
-    private static function Repair($type, $_stable_versions_only, $_lang = false)
+    public static function Repair($type, $_stable_versions_only, $_lang = false)
     {
         if ($type == "include")
         {
@@ -160,7 +160,7 @@ class CUpdateClient
                 CUpdateClient::AddMessage2Log("Include repair error: " . $errorMessage);
         }
     }
-    private static function IsUpdateAvailable(&$_update_module, &$strError)
+    public static function IsUpdateAvailable(&$_update_module, &$strError)
     {
         $_update_module = array();
         $strError = '';
@@ -182,7 +182,7 @@ class CUpdateClient
         if (isset($_update_list['UPDATE_SYSTEM'])) return true;
         return false;
     }
-    private static function SubscribeMail($_email, &$strError, $_lang = false, $_stable_versions_only = "Y")
+    public static function SubscribeMail($_email, &$strError, $_lang = false, $_stable_versions_only = "Y")
     {
         $strError_tmp = "";
         CUpdateClient::AddMessage2Log("exec CUpdateClient::SubscribeMail");
@@ -229,7 +229,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function ActivateCoupon($_coupon, &$strError, $_lang = false, $_stable_versions_only = "Y")
+    public static function ActivateCoupon($_coupon, &$strError, $_lang = false, $_stable_versions_only = "Y")
     {
         $strError_tmp = "";
         CUpdateClient::AddMessage2Log('exec CUpdateClient::ActivateCoupon');
@@ -283,7 +283,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function __ApplyLicenseInfo($_options)
+    public static function __ApplyLicenseInfo($_options)
     {
         if (array_key_exists("V1", $_options) && array_key_exists("V2", $_options))
         {
@@ -348,7 +348,7 @@ class CUpdateClient
             COption::SetOptionString('main', '~cpf_map_value', $_cpf_map_value);
         }
     }
-    private static function UpdateUpdate(&$strError, $_lang = false, $_stable_versions_only = "Y")
+    public static function UpdateUpdate(&$strError, $_lang = false, $_stable_versions_only = "Y")
     {
         $strError_tmp = "";
         CUpdateClient::AddMessage2Log('exec CUpdateClient::UpdateUpdate');
@@ -444,7 +444,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function GetPHPSources(&$strError, $_lang, $_stable_versions_only, $_req_modules)
+    public static function GetPHPSources(&$strError, $_lang, $_stable_versions_only, $_req_modules)
     {
         $strError_tmp = "";
         CUpdateClient::AddMessage2Log('exec CUpdateClient::GetPHPSources');
@@ -481,7 +481,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function GetSupportFullLoad(&$strError, $_lang, $_stable_versions_only, $_req_modules)
+    public static function GetSupportFullLoad(&$strError, $_lang, $_stable_versions_only, $_req_modules)
     {
         $strError_tmp = "";
         CUpdateClient::AddMessage2Log('exec CUpdateClient::GetSupportFullLoad');
@@ -519,7 +519,7 @@ class CUpdateClient
         }
         else return true;
     }
-    private static function RegisterVersion(&$strError, $_lang = false, $_stable_versions_only = "Y")
+    public static function RegisterVersion(&$strError, $_lang = false, $_stable_versions_only = "Y")
     {
         $strError_tmp = "";
         CUpdateClient::AddMessage2Log('exec CUpdateClient::RegisterVersion');
@@ -627,7 +627,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function ActivateLicenseKey($_698992942, &$strError, $_lang = false, $_stable_versions_only = "Y")
+    public static function ActivateLicenseKey($_698992942, &$strError, $_lang = false, $_stable_versions_only = "Y")
     {
         $strError_tmp = "";
         CUpdateClient::AddMessage2Log('exec CUpdateClient::ActivateLicenseKey');
@@ -675,7 +675,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function GetNextStepLangUpdates(&$strError, $_lang = false, $_req_langs = array())
+    public static function GetNextStepLangUpdates(&$strError, $_lang = false, $_req_langs = array())
     {
         $strError_tmp = "";
         CUpdateClient::AddMessage2Log('exec CUpdateClient::GetNextStepLangUpdates');
@@ -712,7 +712,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function GetNextStepHelpUpdates(&$strError, $_lang = false, $_req_helps = array())
+    public static function GetNextStepHelpUpdates(&$strError, $_lang = false, $_req_helps = array())
     {
         $strError_tmp = "";
         CUpdateClient::AddMessage2Log('exec CUpdateClient::GetNextStepHelpUpdates');
@@ -749,15 +749,15 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function getSpd()
+    public static function getSpd()
     {
         return self::getModuleValue(US_BASE_MODULE, "crc_code", "");
     }
-    private static function setSpd($_key)
+    public static function setSpd($_key)
     {
         if ($_key != "") COption::SetOptionString(US_BASE_MODULE, "crc_code", $_key);
     }
-    private static function LoadModulesUpdates(&$errorMessage, &$_1244932944, $_lang = false, $_stable_versions_only = "Y", $_req_modules = array())
+    public static function LoadModulesUpdates(&$errorMessage, &$_1244932944, $_lang = false, $_stable_versions_only = "Y", $_req_modules = array())
     {
         $_1244932944 = array();
         $_str_collect_data = '';
@@ -871,7 +871,7 @@ class CUpdateClient
         CUpdateClient::AddMessage2Log('RETURN', $_1505806505);
         return $_1505806505;
     }
-    private static function __450740454($_ufile, $_all_length, $_tmp_file, $_update_load_timeout, $_str_param, &$errorMessage)
+    public static function __450740454($_ufile, $_all_length, $_tmp_file, $_update_load_timeout, $_str_param, &$errorMessage)
     {
         $_update_load_timeout = intval($_update_load_timeout);
         $_cur_time = 0;
@@ -1008,7 +1008,7 @@ class CUpdateClient
         }
         return 'U';
     }
-    private function __1534702458($_ufile, $_all_length, $_tmp_file, $_update_load_timeout, &$errorMessage)
+    public function __1534702458($_ufile, $_all_length, $_tmp_file, $_update_load_timeout, &$errorMessage)
     {
         $_update_load_timeout = intval($_update_load_timeout);
         $_cur_time = 0;
@@ -1567,7 +1567,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function GetStepUpdateInfo($_update_path, &$strError)
+    public static function GetStepUpdateInfo($_update_path, &$strError)
     {
         $_row = array();
         $strError_tmp ='';
@@ -1604,7 +1604,7 @@ class CUpdateClient
         else 
         	return $_row;
     }
-    private static function UpdateStepHelps($_update_path, &$strError)
+    public static function UpdateStepHelps($_update_path, &$strError)
     {
         $strError_tmp = "";
         CUpdateClient::AddMessage2Log('exec CUpdateClient::UpdateHelp');
@@ -1696,7 +1696,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function UpdateStepLangs($_update_path, &$strError)
+    public static function UpdateStepLangs($_update_path, &$strError)
     {
         global $DB;
         $strError_tmp ='';
@@ -1855,7 +1855,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function UpdateStepModules($_update_path, &$strError, $_1530911996 = False)
+    public static function UpdateStepModules($_update_path, &$strError, $_1530911996 = False)
     {
         global $DB;
         $strError_tmp ='';
@@ -2030,12 +2030,12 @@ class CUpdateClient
             return True;
         }
     }
-    private static function ClearUpdateFolder($_update_full_path)
+    public static function ClearUpdateFolder($_update_full_path)
     {
         CUpdateClient::DeleteDirFilesEx($_update_full_path);
         bx_accelerator_reset();
     }
-    private static function RunUpdaterScript($_path, &$strError, $_check_directoy, $_953617183)
+    public static function RunUpdaterScript($_path, &$strError, $_check_directoy, $_953617183)
     {
         global $DBType, $DB, $APPLICATION, $USER;
         if (!isset($GLOBALS['UPDATE_STRONG_UPDATE_CHECK']) || ($GLOBALS['UPDATE_STRONG_UPDATE_CHECK'] != 'Y' && $GLOBALS['UPDATE_STRONG_UPDATE_CHECK'] != 'N'))
@@ -2061,7 +2061,7 @@ class CUpdateClient
             $strError .= implode(' ', $updater->errorMessage);
         unset($updater);
     }
-    private static function CompareVersions($_version_1, $_version_2)
+    public static function CompareVersions($_version_1, $_version_2)
     {
         $_version_1 = Trim($_version_1);
         $_version_2 = Trim($_version_2);
@@ -2085,11 +2085,11 @@ class CUpdateClient
         }
         return -0;
     }
-    private function _strlen($_str)
+    public function _strlen($_str)
     {
         return function_exists('mb_strlen') ? mb_strlen($_str, 'latin1') : strlen($_str);
     }
-    private function _sub_str($_str, $_start_pos)
+    public function _sub_str($_str, $_start_pos)
     {
         if (function_exists('mb_substr'))
         {
@@ -2102,7 +2102,7 @@ class CUpdateClient
         }
         return substr($_str, $_start_pos);
     }
-    private function _str_pos($_haystack, $_needle, $_offset = 0)
+    public function _str_pos($_haystack, $_needle, $_offset = 0)
     {
         if (defined("BX_UTF"))
         {
@@ -2114,7 +2114,7 @@ class CUpdateClient
         }
         return strpos($_haystack, $_needle, $_offset);
     }
-    private static function checkValid()
+    public static function checkValid()
     {
         $_content = file_get_contents($_SERVER["DOCUMENT_ROOT"] . '/thurly/modules/main/include.php');
         $_pos_colon = static ::_str_pos($_content, '/*ZDUyZmZ');
@@ -2138,7 +2138,7 @@ class CUpdateClient
         if (md5(CUpdateClient::GetLicenseKey() . 'check') === '31ea312de1006771f0a4e5b25a90932c') return true;
         return false;
     }
-    private static function GetUpdatesList(&$strError, $_lang = false, $_stable_versions_only = "Y")
+    public static function GetUpdatesList(&$strError, $_lang = false, $_stable_versions_only = "Y")
     {
         $strError_tmp = "";
         $_row = array();
@@ -2177,7 +2177,7 @@ class CUpdateClient
         }
         else return $_row;
     }
-    private static function GetHTTPPage($_type, $_url_param, &$strError)
+    public static function GetHTTPPage($_type, $_url_param, &$strError)
     {
         global $SERVER_NAME, $DB;
         CUpdateClient::AddMessage2Log('exec CUpdateClient::GetHTTPPage');
@@ -2311,7 +2311,7 @@ class CUpdateClient
         }
         return $_content;
     }
-    private static function ParseServerData(&$_1783309041, &$_arRes, &$strError)
+    public static function ParseServerData(&$_1783309041, &$_arRes, &$strError)
 	{
 	    $strError_tmp = "";
 	    $_arRes = array();
@@ -2570,7 +2570,7 @@ class CUpdateClient
         }
         return $_arr_params;
     }
-    private static function __GetFooPath()
+    public static function __GetFooPath()
     {
         if (!class_exists("CLang"))
         {
@@ -2587,11 +2587,11 @@ class CUpdateClient
             return $_lang_count;
         }
     }
-    private static function GetCurrentNumberOfUsers()
+    public static function GetCurrentNumberOfUsers()
     {
         return CUpdateClient::__GetFooPath1();
     }
-    private static function GetCurrentLanguages(&$strError, $_helps_arr = false)
+    public static function GetCurrentLanguages(&$strError, $_helps_arr = false)
     {
         $_langs_arr = array();
         $_lang_path = $_SERVER['DOCUMENT_ROOT'] . US_SHARED_KERNEL_PATH . '/modules/main/lang';
@@ -2654,7 +2654,7 @@ class CUpdateClient
         }
         return $_langs_arr;
     }
-    private static function __GetFooPath1()
+    public static function __GetFooPath1()
     {
         if (IsModuleInstalled("intranet"))
         {
@@ -2664,7 +2664,7 @@ class CUpdateClient
         }
         return 0;
     }
-    private static function GetCurrentHelps(&$strError, $_helps_arr = false)
+    public static function GetCurrentHelps(&$strError, $_helps_arr = false)
     {
         $_arr_help_tmp = array();
         $_help_path = $_SERVER['DOCUMENT_ROOT'] . US_SHARED_KERNEL_PATH . '/help';
@@ -2727,7 +2727,7 @@ class CUpdateClient
         }
         return $_arr_help_tmp;
     }
-    private static function AddMessage2Log($_message, $_message_type = "")
+    public static function AddMessage2Log($_message, $_message_type = "")
     {
         $_max_file_size = 1000000;
         $_length = 0;
@@ -2781,7 +2781,7 @@ class CUpdateClient
             ignore_user_abort($_prev_setting);
         }
     }
-    private static function CheckDirPath($_path, $_write_permiss = true)
+    public static function CheckDirPath($_path, $_write_permiss = true)
     {
         $_1364691373 = Array();
         $_path = str_replace('\\', '/', $_path);
@@ -2814,7 +2814,7 @@ class CUpdateClient
             @mkdir($_path, BX_DIR_PERMISSIONS);
         }
     }
-    private static function CopyDirFiles($_src_path, $_dst_path, &$strError, $_sub_directory_flag = True, $_957891511 = array())
+    public static function CopyDirFiles($_src_path, $_dst_path, &$strError, $_sub_directory_flag = True, $_957891511 = array())
     {
         $strError_tmp = "";
         while (strlen($_src_path) > 0 && $_src_path[strlen($_src_path)] == '/') 
@@ -2924,7 +2924,7 @@ class CUpdateClient
         }
         else return True;
     }
-    private static function DeleteDirFilesEx($_path)
+    public static function DeleteDirFilesEx($_path)
     {
         if (!file_exists($_path)) return False;
         if (is_file($_path))
@@ -2951,14 +2951,14 @@ class CUpdateClient
         @rmdir($_path);
         return True;
     }
-    private static function bxstrrpos($_haystack, $_needle)
+    public static function bxstrrpos($_haystack, $_needle)
     {
         $_467671718 = strpos(strrev($_haystack) , strrev($_needle));
         if ($_467671718 === false) return false;
         $_467671718 = strlen($_haystack) - strlen($_needle) - $_467671718;
         return $_467671718;
     }
-    private static function GetModuleInfo($_path)
+    public static function GetModuleInfo($_path)
     {
         $arModuleVersion = array();
         $_version_content = file_get_contents($_path . '/install/version.php');
@@ -2994,12 +2994,12 @@ class CUpdateClient
         }
         return $GLOBALS['CACHE4UPDATESYS_LICENSE_KEY'];
     }
-    private static function getmicrotime()
+    public static function getmicrotime()
     {
         list($_usec, $_sec) = explode(" ", microtime());
         return ((float)$_usec + (float)$_sec);
     }
-    private static function ConvertToLangCharset($_error_str, $_error_no, $_sockInfo)
+    public static function ConvertToLangCharset($_error_str, $_error_no, $_sockInfo)
     {
         if (class_exists('CUtil') && method_exists('CUtil', 'ConvertToLangCharset')) 
             $_error_str = CUtil::ConvertToLangCharset($_error_str);
@@ -3009,7 +3009,7 @@ class CUpdateClient
         CUpdateClient::AddMessage2Log('Error connecting2'.$_sockInfo[SOCKET_IP] . ': [' . $_error_no . ']' . $_error_str . '', 'ERRCONN1');
         return $strError_tmp;
     }
-    private static function _getSockInfo($_update_site = null, $_default_port = null)
+    public static function _getSockInfo($_update_site = null, $_default_port = null)
     {
         if (!$_update_site) $_update_site = COption::GetOptionString("main", "update_site", DEFAULT_UPDATE_SERVER);
         if (!$_default_port) $_default_port = 0;
@@ -3039,7 +3039,7 @@ class CUpdateClient
 }
 class CUpdateControllerSupport
 {
-    private static function CheckUpdates()
+    public static function CheckUpdates()
     {
         $errorMessage = "";
         $_stable_versions_only = COption::GetOptionString('main', 'stable_versions_only', 'Y');
@@ -3078,15 +3078,15 @@ class CUpdateControllerSupport
         else 
             return array('FINISH', '');
     }
-    private static function UpdateModules()
+    public static function UpdateModules()
     {
         return CUpdateControllerSupport::__UpdateKernel("M");
     }
-    private static function UpdateLangs()
+    public static function UpdateLangs()
     {
         return CUpdateControllerSupport::__UpdateKernel("L");
     }
-    private static function __UpdateKernel($_1144105389)
+    public static function __UpdateKernel($_1144105389)
     {
         define("UPD_INTERNAL_CALL", "Y");
         $_REQUEST['query_type'] = $_1144105389;
@@ -3096,7 +3096,7 @@ class CUpdateControllerSupport
         ob_end_clean();
         return $_str_result;
     }
-    private static function UpdateUpdate()
+    public static function UpdateUpdate()
     {
         define("UPD_INTERNAL_CALL", "Y");
         $_REQUEST['query_type'] = 'updateupdate';
@@ -3106,11 +3106,11 @@ class CUpdateControllerSupport
         ob_end_clean();
         return $_str_result;
     }
-    private static function Finish()
+    public static function Finish()
     {
         @unlink($_SERVER["DOCUMENT_ROOT"] . US_SHARED_KERNEL_PATH . "/modules/versions.php");
     }
-    private static function Update($_file_tmp_1_content = "")
+    public static function Update($_file_tmp_1_content = "")
     {
         @set_time_limit(0);
         ini_set('track_errors', 1);
@@ -3189,7 +3189,7 @@ class CUpdateControllerSupport
         if ($_param == 'FIN') CUpdateControllerSupport::Finish();
         return $_param;
     }
-    private static function CollectVersionsFile()
+    public static function CollectVersionsFile()
     {
         $_version_path = $_SERVER["DOCUMENT_ROOT"] . US_SHARED_KERNEL_PATH . "/modules/versions.php";
         @unlink($_version_path);

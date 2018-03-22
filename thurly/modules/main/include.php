@@ -935,6 +935,7 @@ if (!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true) {
         $USER->LoginHitByHash();
     }
 }
+
 $USER->CheckAuthActions();
 if (($application_id = $USER->GetParam("APPLICATION_ID")) !== null) {
     $instance = \Thurly\Main\Authentication\ApplicationManager::getInstance();
@@ -945,6 +946,7 @@ if (($application_id = $USER->GetParam("APPLICATION_ID")) !== null) {
         die();
     }
 }
+
 if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true) {
     $site_template_id = "";
     if (is_string($_REQUEST["thurly_preview_site_template"]) && $_REQUEST["thurly_preview_site_template"] <> "" && $USER->CanDoOperation("view_other_settings")) {
