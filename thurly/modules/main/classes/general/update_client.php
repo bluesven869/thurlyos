@@ -2962,7 +2962,7 @@ class CUpdateClient
     {
         $arModuleVersion = array();
         $_version_content = file_get_contents($_path . '/install/version.php');
-        var_dump($path);
+        var_dump($_path);
         if ($_version_content !== false)
         {
             var_dump($_version_content);
