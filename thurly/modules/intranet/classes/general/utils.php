@@ -1787,7 +1787,7 @@ class CIntranetUtils
 	{
 		global $USER;
 		$firstPagePath = CUserOptions::GetOption("intranet", "left_menu_first_page_".SITE_ID);
-		var_dump($firstPagePath);
+		
 		$firstPagePath = ltrim($firstPagePath);
 		if (empty($firstPagePath))
 		{

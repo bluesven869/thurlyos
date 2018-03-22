@@ -10,12 +10,12 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/thurly/modules/main/include/prolog_befo
 if (\Thurly\Main\Loader::includeModule("intranet"))
 {
 	$firstPageLink = CIntranetUtils::getB24FirstPageLink();
-	var_dump($firstPageLink);
-	/*
+	
+	
 	if ($firstPageLink)
 	{
 		LocalRedirect($firstPageLink);
-	}*/
+	}
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_after.php");
