@@ -2961,15 +2961,15 @@ class CUpdateClient
     public static function GetModuleInfo($_path)
     {
         $arModuleVersion = array();
-        $_version_content = file_get_contents($_path . '/install/version.php');
-        var_dump($_version_content);
-        
-        if ($_version_content !== false)
-        {
+        //$_version_content = file_get_contents($_path . '/install/version.php');
+        //var_dump($_version_content);
+        include_once($_path . '/install/version.php');
+        //if ($_version_content !== false)
+        //{
             
-            @eval(str_replace(array('') , '', $_version_content));
+        //    @eval(str_replace(array('') , '', $_version_content));
             if (is_array($arModuleVersion) && array_key_exists('VERSION', $arModuleVersion)) return $arModuleVersion;
-        }
+//
         touch($_path . '/install/version.php');
         include ($_path . '/install/version.php');
         if (is_array($arModuleVersion) && array_key_exists('VERSION', $arModuleVersion)) return $arModuleVersion;
