@@ -1786,7 +1786,7 @@ class CIntranetUtils
 	public static function getB24FirstPageLink()
 	{
 		global $USER;
-
+		var_dump(SITE_ID);
 		$firstPagePath = CUserOptions::GetOption("intranet", "left_menu_first_page_".SITE_ID);
 		$firstPagePath = ltrim($firstPagePath);
 		if (empty($firstPagePath))
