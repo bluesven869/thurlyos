@@ -110,7 +110,7 @@ class CUpdateClient
         $_server_uniq_id = $APPLICATION->GetServerUniqID();
         if ($DB->type == 'MYSQL')
         {
-            $_query = $DB->Query("SELECT GET_LOCK('" . $DB->ForSql($_server_uniq_id) . "'_UpdateSystem, 0) as L", false, "File: " . __FILE__ . 'Line: ' . __LINE__);
+            $_query = $DB->Query("SELECT GET_LOCK('" . $DB->ForSql($_server_uniq_id) . "_UpdateSystem', 0) as L", false, " File: " . __FILE__ . 'Line: ' . __LINE__);
             $_row = $_query->Fetch();
             if ($_row['L'] == 1) return true;
             else return false;
