@@ -3,6 +3,7 @@ require_once(substr(__FILE__, 0, strlen(__FILE__) - strlen("/include.php"))."/bx
 require_once($_SERVER["DOCUMENT_ROOT"]."/thurly/modules/main/start.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/thurly/modules/main/classes/general/virtual_io.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/thurly/modules/main/classes/general/virtual_file.php");
+
 $instance = \Thurly\Main\Application::getInstance();
 $instance->initializeExtendedKernel(
     array("get" => $_GET, 
@@ -12,7 +13,9 @@ $instance->initializeExtendedKernel(
         "server" => $_SERVER, 
         "env" => $_ENV)
 );
+
 $APPLICATION = new CMain;
+
 if (defined("SITE_ID")) define("LANG", SITE_ID);
 if (defined("LANG")) {
     if (defined("ADMIN_SECTION") && ADMIN_SECTION === true) 
@@ -27,9 +30,12 @@ if (defined("LANG")) {
     $arLang = $APPLICATION->GetLang();
     define("LANG", $arLang["LID"]);
 }
-$_482636585 = $arLang["LID"];
+
+$_LID = $arLang["LID"];
+
 if (!defined("SITE_ID")) 
     define("SITE_ID", $arLang["LID"]); 
+
 define("SITE_DIR", $arLang["DIR"]);
 define("SITE_SERVER_NAME", $arLang["SERVER_NAME"]);
 define("SITE_CHARSET", $arLang["CHARSET"]);
@@ -39,35 +45,51 @@ define("LANG_DIR", $arLang["DIR"]);
 define("LANG_CHARSET", $arLang["CHARSET"]);
 define("LANG_ADMIN_LID", $arLang["LANGUAGE_ID"]);
 define("LANGUAGE_ID", $arLang["LANGUAGE_ID"]);
+
 $context = $instance->getContext();
 $context->setLanguage(LANGUAGE_ID);
 $context->setCulture(new \Thurly\Main\Context\Culture($arLang));
+
 $request = $context->getRequest();
 if (!$request->isAdminSection()) {
     $context->setSite(SITE_ID);
 }
+
 $instance->start();
 $APPLICATION->reinitPath();
+
 if (!defined("POST_FORM_ACTION_URI")) {
     define("POST_FORM_ACTION_URI", htmlspecialcharsbx(GetRequestUri()));
 }
+
+// Include lang files
 $MESS = array();
 $ALL_LANG_FILES = array();
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/tools.php");
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/database.php");
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/main.php");
 IncludeModuleLangFile(__FILE__);
+
+// Set error reporting
 error_reporting(COption::GetOptionInt("main", "error_reporting", E_COMPILE_ERROR | E_ERROR | E_CORE_ERROR | E_PARSE) & ~E_STRICT & ~E_DEPRECATED);
+
 if (!defined("BX_COMP_MANAGED_CACHE") && COption::GetOptionString("main", "component_managed_cache_on", "Y") <> "N") {
     define("BX_COMP_MANAGED_CACHE", true);
 }
+
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/filter_tools.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/ajax_tools.php");
+
 define("INTRANET_EDITION", "Y");
+
+/****************************
+ *    CBX Fatures Class     *
+ ****************************/
 class CBXFeatures {
-    private static $_1043037136 = 30;
-    private static $_1590593606 = array(
-        "Portal" => array("CompanyCalendar", 
+    private static $tryDaysCount = 30;
+    private static $arBXFeatures = array(
+        "Portal" => array(
+            "CompanyCalendar", 
             "CompanyPhoto", 
             "CompanyVideo",
             "CompanyCareer",
@@ -92,7 +114,8 @@ class CBXFeatures {
             "MicroBlog",
             "WebMessenger",
         ), 
-        "Communications" => array("Tasks",
+        "Communications" => array(
+            "Tasks",
             "Calendar",
             "Workgroups",
             "Jabber",
@@ -109,7 +132,8 @@ class CBXFeatures {
             "Salary",
             "XDImport",
         ),
-        "Enterprise" => array("BizProc",
+        "Enterprise" => array(
+            "BizProc",
             "Lists",
             "Support",
             "Analytics",
@@ -121,162 +145,170 @@ class CBXFeatures {
             "MultiSites",
         ),
     );
-    private static $_133698707 = false;
-    private static $_106113606 = false;
-    private static function __1381466640() {
-        if (self::$_133698707 == false) {
-            self::$_133698707 = array();
-            foreach(self::$_1590593606 as $_1336154661 => $_545251959) {
-                foreach($_545251959 as $_252575629)
-                    self::$_133698707[$_252575629] = $_1336154661;
+    private static $xmlFeatures = false;
+    private static $arCpfMapValue = false;
+    private static function _init() {
+        if (self::$xmlFeatures == false) {
+            self::$xmlFeatures = array();
+            foreach(self::$arBXFeatures as $key => $arAllFeatures) {
+                foreach($arAllFeatures as $f)
+                    self::$xmlFeatures[$f] = $key;
             }
         }
-        if (self::$_106113606 == false) {
-            self::$_106113606 = array();
-            $_1061694745 = COption::GetOptionString("main", "~cpf_map_value", "");
-            if (strlen($_1061694745) > 0) {
-                $_1061694745 = base64_decode($_1061694745);
-                self::$_106113606 = unserialize($_1061694745);
-                if (!is_array(self::$_106113606))
-                    self::$_106113606 = array();
+        if (self::$arCpfMapValue == false) {
+            self::$arCpfMapValue = array();
+            $cpf_map_value = COption::GetOptionString("main", "~cpf_map_value", "");
+            if (strlen($cpf_map_value) > 0) {
+                $cpf_map_value = base64_decode($cpf_map_value);
+                self::$arCpfMapValue = unserialize($cpf_map_value);
+                if (!is_array(self::$arCpfMapValue))
+                    self::$arCpfMapValue = array();
             }
-            if (count(self::$_106113606) <= 0) 
-                self::$_106113606 = array("e" => array(), "f" => array());
+            if (count(self::$arCpfMapValue) <= 0) 
+                self::$arCpfMapValue = array("e" => array(), "f" => array());
         }
     }
     public static function InitiateEditionsSettings($_419611900) {
-        self::__1381466640();
-        $_1320725044 = array();
-        foreach(self::$_1590593606 as $_1336154661 => $_545251959) {
-            $_842872935 = in_array($_1336154661, $_419611900);
-            self::$_106113606["e"][$_1336154661] = ($_842872935 ? array("F") : array("X"));
-            foreach($_545251959 as $_252575629) {
-                self::$_106113606["f"][$_252575629] = $_842872935;
-                if (!$_842872935) 
-                    $_1320725044[] = array($_252575629, false);
+        self::_init();
+        $arFeatures = array();
+        foreach(self::$arBXFeatures as $key => $arAllFeatures) {
+            $by = in_array($key, $_419611900);
+            self::$arCpfMapValue["e"][$key] = ($by ? array("F") : array("X"));
+            foreach($arAllFeatures as $f) {
+                self::$arCpfMapValue["f"][$f] = $by;
+                if (!$by) 
+                    $arFeatures[] = array($f, false);
             }
         }
-        $_416897562 = serialize(self::$_106113606);
-        $_416897562 = base64_encode($_416897562);
-        COption::SetOptionString("main", "~cpf_map_value", $_416897562);
-        foreach($_1320725044 as $_164782089)
-            self::__1764067525($_164782089[0], $_164782089[1]);
+        $cpf_map_value = serialize(self::$arCpfMapValue);
+        $cpf_map_value = base64_encode($cpf_map_value);
+        COption::SetOptionString("main", "~cpf_map_value", $cpf_map_value);
+        foreach($arFeatures as $feature)
+            self::ChangeFeatureSettings($feature[0], $feature[1]);
     }
-    public static function IsFeatureEnabled($_252575629) {
-        if (strlen($_252575629) <= 0)
+
+    public static function IsFeatureEnabled($f) {
+        if (strlen($f) <= 0)
             return true;
-        self::__1381466640();
-        if (!array_key_exists($_252575629, self::$_133698707))
+        self::_init();
+        if (!array_key_exists($f, self::$xmlFeatures))
             return true;
-        if (self::$_133698707[$_252575629] == "Portal")
-            $_509214402 = array("F");
-        elseif(array_key_exists(self::$_133698707[$_252575629], self::$_106113606["e"]))
-            $_509214402 = self::$_106113606["e"][self::$_133698707[$_252575629]];
+        if (self::$xmlFeatures[$f] == "Portal")
+            $arFeatureSettings = array("F");
+        elseif(array_key_exists(self::$xmlFeatures[$f], self::$arCpfMapValue["e"]))
+            $arFeatureSettings = self::$arCpfMapValue["e"][self::$xmlFeatures[$f]];
         else
-            $_509214402 = array("X");
-        if ($_509214402[0] != "F" && $_509214402[0] != "D") {
+            $arFeatureSettings = array("X");
+        if ($arFeatureSettings[0] != "F" && $arFeatureSettings[0] != "D") {
             return false;
         }
-        elseif($_509214402[0] == "D") {
-            if ($_509214402[1] < mktime(0, 0, 0, date("m"), date("d") - self::$_1043037136, date("Y"))) {
-                if (!isset($_509214402[2]) || !$_509214402[2]) 
-                    self::__1432439879(self::$_133698707[$_252575629]);
+        elseif($arFeatureSettings[0] == "D") {
+            if ($arFeatureSettings[1] < mktime(0, 0, 0, date("m"), date("d") - self::$tryDaysCount, date("Y"))) {
+                if (!isset($arFeatureSettings[2]) || !$arFeatureSettings[2]) 
+                    self::__1432439879(self::$xmlFeatures[$f]);
                 return false;
             }
         }
-        return !array_key_exists($_252575629, self::$_106113606["f"]) || self::$_106113606["f"][$_252575629];
+        return !array_key_exists($f, self::$arCpfMapValue["f"]) || self::$arCpfMapValue["f"][$f];
     }
-    public static function IsFeatureInstalled($_252575629) {
-        if (strlen($_252575629) <= 0) return true;
-        self::__1381466640();
-        return (array_key_exists($_252575629, self::$_106113606["f"]) && self::$_106113606["f"][$_252575629]);
+
+    public static function IsFeatureInstalled($f) {
+        if (strlen($f) <= 0) return true;
+        self::_init();
+        return (array_key_exists($f, self::$arCpfMapValue["f"]) && self::$arCpfMapValue["f"][$f]);
     }
-    public static function IsFeatureEditable($_252575629) {
-        if (strlen($_252575629) <= 0)
+
+    public static function IsFeatureEditable($f) {
+        if (strlen($f) <= 0)
             return true;
-        self::__1381466640();
-        if (!array_key_exists($_252575629, self::$_133698707))
+        self::_init();
+        if (!array_key_exists($f, self::$xmlFeatures))
             return true;
-        if (self::$_133698707[$_252575629] == "Portal") $_509214402 = array("F");
-        elseif(array_key_exists(self::$_133698707[$_252575629], self::$_106113606["e"])) $_509214402 = self::$_106113606["e"][self::$_133698707[$_252575629]];
-        else $_509214402 = array("X");
-        if ($_509214402[0] != "F" && $_509214402[0] != "D") {
+        if (self::$xmlFeatures[$f] == "Portal") $arFeatureSettings = array("F");
+        elseif(array_key_exists(self::$xmlFeatures[$f], self::$arCpfMapValue["e"])) $arFeatureSettings = self::$arCpfMapValue["e"][self::$xmlFeatures[$f]];
+        else $arFeatureSettings = array("X");
+        if ($arFeatureSettings[0] != "F" && $arFeatureSettings[0] != "D") {
             return false;
         }
-        elseif($_509214402[0] == "D") {
-            if ($_509214402[1] < mktime(0, 0, 0, date("m"), date("d") - self::$_1043037136, date("Y"))) {
-                if (!isset($_509214402[2]) || !$_509214402[2])
-                    self::__1432439879(self::$_133698707[$_252575629]);
+        elseif($arFeatureSettings[0] == "D") {
+            if ($arFeatureSettings[1] < mktime(0, 0, 0, date("m"), date("d") - self::$tryDaysCount, date("Y"))) {
+                if (!isset($arFeatureSettings[2]) || !$arFeatureSettings[2])
+                    self::__1432439879(self::$xmlFeatures[$f]);
                 return false;
             }
         }
         return true;
     }
-    private static function __1764067525($_252575629, $_1334287812) {
-        if (method_exists("CBXFeatures", "On".$_252575629.
-                "SettingsChange"))
-            call_user_func_array(array("CBXFeatures", "On".$_252575629. "SettingsChange"), array($_252575629, $_1334287812));
-        $_1343841395 = GetModuleEvents("main", "On".$_252575629."SettingsChange");
-        while ($_796304211 = $_1343841395->Fetch())
-            ExecuteModuleEventEx($_796304211, array($_252575629, $_1334287812));
+
+    private static function ChangeFeatureSettings($f, $settings) {
+        if (method_exists("CBXFeatures", "On" . $f . "SettingsChange"))
+            call_user_func_array(array("CBXFeatures", "On" . $f . "SettingsChange"), array($f, $settings));
+        $events = GetModuleEvents("main", "On" . $f . "SettingsChange");
+        while ($event = $events->Fetch())
+            ExecuteModuleEventEx($event, array($f, $settings));
     }
-    public static function SetFeatureEnabled($_252575629, $_1334287812 = true, $_1137232089 = true) {
-        if (strlen($_252575629) <= 0)
+
+    public static function SetFeatureEnabled($f, $installFlag = true, $modify = true) {
+        if (strlen($f) <= 0)
             return;
-        if (!self::IsFeatureEditable($_252575629))
-            $_1334287812 = false;
-        $_1334287812 = ($_1334287812 ? true : false);
-        self::__1381466640();
-        $_166973516 = (!array_key_exists($_252575629, self::$_106113606["f"]) && $_1334287812 || array_key_exists($_252575629, self::$_106113606["f"]) && $_1334287812 != self::$_106113606["f"][$_252575629]);
-        self::$_106113606["f"][$_252575629] = $_1334287812;
-        $_416897562 = serialize(self::$_106113606);
-        $_416897562 = base64_encode($_416897562);
-        COption::SetOptionString("main", "~cpf_map_value", $_416897562);
-        if ($_166973516 && $_1137232089)
-            self::__1764067525($_252575629, $_1334287812);
+        if (!self::IsFeatureEditable($f))
+            $installFlag = false;
+        $installFlag = ($installFlag ? true : false);
+        self::_init();
+        $needModify = (!array_key_exists($f, self::$arCpfMapValue["f"]) && $installFlag || array_key_exists($f, self::$arCpfMapValue["f"]) && $installFlag != self::$arCpfMapValue["f"][$f]);
+        self::$arCpfMapValue["f"][$f] = $installFlag;
+        $cpf_map_value = serialize(self::$arCpfMapValue);
+        $cpf_map_value = base64_encode($cpf_map_value);
+        COption::SetOptionString("main", "~cpf_map_value", $cpf_map_value);
+        if ($needModify && $modify)
+            self::ChangeFeatureSettings($f, $installFlag);
     }
-    private static function __1432439879($_1336154661) {
-        if (strlen($_1336154661) <= 0 || $_1336154661 == "Portal")
+
+    private static function __1432439879($key) {
+        if (strlen($key) <= 0 || $key == "Portal")
             return;
-        self::__1381466640();
-        if (!array_key_exists($_1336154661, self::$_106113606["e"]) || array_key_exists($_1336154661, self::$_106113606["e"]) && self::$_106113606["e"][$_1336154661][0] != "D")
+        self::_init();
+        if (!array_key_exists($key, self::$arCpfMapValue["e"]) || array_key_exists($key, self::$arCpfMapValue["e"]) && self::$arCpfMapValue["e"][$key][0] != "D")
             return;
-        if (isset(self::$_106113606["e"][$_1336154661][2]) && self::$_106113606["e"][$_1336154661][2])
+        if (isset(self::$arCpfMapValue["e"][$key][2]) && self::$arCpfMapValue["e"][$key][2])
             return;
-        $_1320725044 = array();
-        if (array_key_exists($_1336154661, self::$_1590593606) && is_array(self::$_1590593606[$_1336154661])) {
-            foreach(self::$_1590593606[$_1336154661] as $_252575629) {
-                if (array_key_exists($_252575629, self::$_106113606["f"]) && self::$_106113606["f"][$_252575629]) {
-                    self::$_106113606["f"][$_252575629] = false;
-                    $_1320725044[] = array($_252575629, false);
+        $arFeatures = array();
+        if (array_key_exists($key, self::$arBXFeatures) && is_array(self::$arBXFeatures[$key])) {
+            foreach(self::$arBXFeatures[$key] as $f) {
+                if (array_key_exists($f, self::$arCpfMapValue["f"]) && self::$arCpfMapValue["f"][$f]) {
+                    self::$arCpfMapValue["f"][$f] = false;
+                    $arFeatures[] = array($f, false);
                 }
             }
-            self::$_106113606["e"][$_1336154661][2] = true;
+            self::$arCpfMapValue["e"][$key][2] = true;
         }
-        $_416897562 = serialize(self::$_106113606);
-        $_416897562 = base64_encode($_416897562);
-        COption::SetOptionString("main", "~cpf_map_value", $_416897562);
-        foreach($_1320725044 as $_164782089) self::__1764067525($_164782089[0], $_164782089[1]);
+        $cpf_map_value = serialize(self::$arCpfMapValue);
+        $cpf_map_value = base64_encode($cpf_map_value);
+        COption::SetOptionString("main", "~cpf_map_value", $cpf_map_value);
+        foreach($arFeatures as $feature) 
+            self::ChangeFeatureSettings($feature[0], $feature[1]);
     }
-    public static function ModifyFeaturesSettings($_419611900, $_545251959) {
-        self::__1381466640();
-        foreach($_419611900 as $_1336154661 => $_1903910598)
-            self::$_106113606["e"][$_1336154661] = $_1903910598;
-        $_1320725044 = array();
-        foreach($_545251959 as $_252575629 => $_1334287812) {
-            if (!array_key_exists($_252575629, self::$_106113606["f"]) && $_1334287812 || array_key_exists($_252575629, self::$_106113606["f"]) && $_1334287812 != self::$_106113606["f"][$_252575629])
-                $_1320725044[] = array($_252575629, $_1334287812);
-            self::$_106113606["f"][$_252575629] = $_1334287812;
+
+    public static function ModifyFeaturesSettings($_419611900, $arAllFeatures) {
+        self::_init();
+        foreach($_419611900 as $key => $_1903910598)
+            self::$arCpfMapValue["e"][$key] = $_1903910598;
+        $arFeatures = array();
+        foreach($arAllFeatures as $f => $value) {
+            if (!array_key_exists($f, self::$arCpfMapValue["f"]) && $value || array_key_exists($f, self::$arCpfMapValue["f"]) && $value != self::$arCpfMapValue["f"][$f])
+                $arFeatures[] = array($f, $value);
+            self::$arCpfMapValue["f"][$f] = $value;
         }
-        $_416897562 = serialize(self::$_106113606);
-        $_416897562 = base64_encode($_416897562);
-        COption::SetOptionString("main", "~cpf_map_value", $_416897562);
-        self::$_106113606 = false;
-        foreach($_1320725044 as $_164782089)
-            self::__1764067525($_164782089[0], $_164782089[1]);
+        $cpf_map_value = serialize(self::$arCpfMapValue);
+        $cpf_map_value = base64_encode($cpf_map_value);
+        COption::SetOptionString("main", "~cpf_map_value", $cpf_map_value);
+        self::$arCpfMapValue = false;
+        foreach($arFeatures as $feature)
+            self::ChangeFeatureSettings($feature[0], $feature[1]);
     }
+
     public static function SaveFeaturesSettings($_974564902, $_1932622630) {
-        self::__1381466640();
+        self::_init();
         $_1241254477 = array("e" => array(), "f" => array());
         if (!is_array($_974564902))
             $_974564902 = array();
@@ -284,234 +316,260 @@ class CBXFeatures {
             $_1932622630 = array();
         if (!in_array("Portal", $_974564902))
             $_974564902[] = "Portal";
-        foreach(self::$_1590593606 as $_1336154661 => $_545251959) {
-            if (array_key_exists($_1336154661, self::$_106113606["e"]))
-                $_1291783738 = self::$_106113606["e"][$_1336154661];
+        foreach(self::$arBXFeatures as $key => $arAllFeatures) {
+            if (array_key_exists($key, self::$arCpfMapValue["e"]))
+                $arKeyMap = self::$arCpfMapValue["e"][$key];
             else
-                $_1291783738 = ($_1336154661 == "Portal") ? array("F") : array("X");
-            if ($_1291783738[0] == "F" || $_1291783738[0] == "D") {
-                $_1241254477["e"][$_1336154661] = $_1291783738;
+                $arKeyMap = ($key == "Portal") ? array("F") : array("X");
+            if ($arKeyMap[0] == "F" || $arKeyMap[0] == "D") {
+                $_1241254477["e"][$key] = $arKeyMap;
             } else {
-                if (in_array($_1336154661, $_974564902))
-                    $_1241254477["e"][$_1336154661] = array("D", mktime(0, 0, 0, date("m"), date("d"), date("Y")));
-                else $_1241254477["e"][$_1336154661] = array("X");
+                if (in_array($key, $_974564902))
+                    $_1241254477["e"][$key] = array("D", mktime(0, 0, 0, date("m"), date("d"), date("Y")));
+                else $_1241254477["e"][$key] = array("X");
             }
         }
-        $_1320725044 = array();
-        foreach(self::$_133698707 as $_252575629 => $_1336154661) {
-            if ($_1241254477["e"][$_1336154661][0] != "F" && $_1241254477["e"][$_1336154661][0] != "D") {
-                $_1241254477["f"][$_252575629] = false;
+        $arFeatures = array();
+        foreach(self::$xmlFeatures as $f => $key) {
+            if ($_1241254477["e"][$key][0] != "F" && $_1241254477["e"][$key][0] != "D") {
+                $_1241254477["f"][$f] = false;
             } else {
-                if ($_1241254477["e"][$_1336154661][0] == "D" && $_1241254477["e"][$_1336154661][1] < mktime(0, 0, 0, date("m"), date("d") - self::$_1043037136, date("Y")))
-                    $_1241254477["f"][$_252575629] = false;
+                if ($_1241254477["e"][$key][0] == "D" && $_1241254477["e"][$key][1] < mktime(0, 0, 0, date("m"), date("d") - self::$tryDaysCount, date("Y")))
+                    $_1241254477["f"][$f] = false;
                 else
-                    $_1241254477["f"][$_252575629] = in_array($_252575629, $_1932622630);
-                if (!array_key_exists($_252575629, self::$_106113606["f"]) && $_1241254477["f"][$_252575629] || array_key_exists($_252575629, self::$_106113606["f"]) && $_1241254477["f"][$_252575629] != self::$_106113606["f"][$_252575629])
-                    $_1320725044[] = array($_252575629, $_1241254477["f"][$_252575629]);
+                    $_1241254477["f"][$f] = in_array($f, $_1932622630);
+                if (!array_key_exists($f, self::$arCpfMapValue["f"]) && $_1241254477["f"][$f] || array_key_exists($f, self::$arCpfMapValue["f"]) && $_1241254477["f"][$f] != self::$arCpfMapValue["f"][$f])
+                    $arFeatures[] = array($f, $_1241254477["f"][$f]);
             }
         }
-        $_416897562 = serialize($_1241254477);
-        $_416897562 = base64_encode($_416897562);
-        COption::SetOptionString("main", "~cpf_map_value", $_416897562);
-        self::$_106113606 = false;
-        foreach($_1320725044 as $_164782089)
-            self::__1764067525($_164782089[0], $_164782089[1]);
+        $cpf_map_value = serialize($_1241254477);
+        $cpf_map_value = base64_encode($cpf_map_value);
+        COption::SetOptionString("main", "~cpf_map_value", $cpf_map_value);
+        self::$arCpfMapValue = false;
+        foreach($arFeatures as $feature)
+            self::ChangeFeatureSettings($feature[0], $feature[1]);
     }
+
     public static function GetFeaturesList() {
-        self::__1381466640();
-        $_412839545 = array();
-        foreach(self::$_1590593606 as $_1336154661 => $_545251959) {
-            if (array_key_exists($_1336154661, self::$_106113606["e"]))
-                $_1291783738 = self::$_106113606["e"][$_1336154661];
+        self::_init();
+        $arFeaturesList = array();
+        foreach(self::$arBXFeatures as $key => $arAllFeatures) {
+            if (array_key_exists($key, self::$arCpfMapValue["e"]))
+                $arKeyMap = self::$arCpfMapValue["e"][$key];
             else
-                $_1291783738 = ($_1336154661 == "Portal") ? array("F") : array("X");
-            $_412839545[$_1336154661] = array("TYPE" => $_1291783738[0],
-                "DATE" => $_1291783738[1],
+                $arKeyMap = ($key == "Portal") ? array("F") : array("X");
+            $arFeaturesList[$key] = array("TYPE" => $arKeyMap[0],
+                "DATE" => $arKeyMap[1],
                 "FEATURES" => array(),
             );
-            $_412839545[$_1336154661]["EXPIRED"] = false;
-            if ($_412839545[$_1336154661]["TYPE"] == "D") {
-                $_412839545[$_1336154661]["TRY_DAYS_COUNT"] = intval((time() - $_412839545[$_1336154661]["DATE"])/86400);
-                if ($_412839545[$_1336154661]["TRY_DAYS_COUNT"] > self::$_1043037136)
-                    $_412839545[$_1336154661]["EXPIRED"] = true;
+            $arFeaturesList[$key]["EXPIRED"] = false;
+            if ($arFeaturesList[$key]["TYPE"] == "D") {
+                $arFeaturesList[$key]["TRY_DAYS_COUNT"] = intval((time() - $arFeaturesList[$key]["DATE"])/86400);
+                if ($arFeaturesList[$key]["TRY_DAYS_COUNT"] > self::$tryDaysCount)
+                    $arFeaturesList[$key]["EXPIRED"] = true;
             }
-            foreach($_545251959 as $_252575629)
-                $_412839545[$_1336154661]["FEATURES"][$_252575629] = (!array_key_exists($_252575629, self::$_106113606["f"]) || self::$_106113606["f"][$_252575629]);
+            foreach($arAllFeatures as $f)
+                $arFeaturesList[$key]["FEATURES"][$f] = (!array_key_exists($f, self::$arCpfMapValue["f"]) || self::$arCpfMapValue["f"][$f]);
         }
-        return $_412839545;
+        return $arFeaturesList;
     }
-    private static function __169355962($_552810271, $_259786597) {
-        if (IsModuleInstalled($_552810271) == $_259786597) return true;
-        $_1093233191 = $_SERVER["DOCUMENT_ROOT"]."/thurly/modules/".$_552810271."/install/index.php";
-        if (!file_exists($_1093233191)) return false;
-        include_once($_1093233191);
-        $_1067741049 = str_replace(".", "_", $_552810271);
-        if (!class_exists($_1067741049)) return false;
-        $_394211983 = new $_1067741049;
-        if ($_259786597) {
-            if (!$_394211983->InstallDB()) return false;
-            $_394211983->InstallEvents();
-            if (!$_394211983->InstallFiles()) return false;
+
+    private static function DoInstall($module_id, $installFlag) {
+        if (IsModuleInstalled($module_id) == $installFlag) return true;
+        $install_php_path = $_SERVER["DOCUMENT_ROOT"]."/thurly/modules/".$module_id."/install/index.php";
+        if (!file_exists($install_php_path)) return false;
+        include_once($install_php_path);
+        $module_class_name = str_replace(".", "_", $module_id);
+        if (!class_exists($module_class_name)) return false;
+        $module = new $module_class_name;
+        if ($installFlag) {
+            if (!$module->InstallDB()) return false;
+            $module->InstallEvents();
+            if (!$module->InstallFiles()) return false;
         } else {
             if (CModule::IncludeModule("search"))
-                CSearch::DeleteIndex($_552810271);
-            UnRegisterModule($_552810271);
+                CSearch::DeleteIndex($module_id);
+            UnRegisterModule($module_id);
         }
         return true;
     }
-    protected static function OnRequestsSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("form", $_1334287812);
+
+    protected static function OnRequestsSettingsChange($f, $installFlag) {
+        self::DoInstall("form", $installFlag);
     }
-    protected static function OnLearningSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("learning", $_1334287812);
+
+    protected static function OnLearningSettingsChange($f, $installFlag) {
+        self::DoInstall("learning", $installFlag);
     }
-    protected static function OnJabberSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("xmpp", $_1334287812);
+
+    protected static function OnJabberSettingsChange($f, $installFlag) {
+        self::DoInstall("xmpp", $installFlag);
     }
-    protected static function OnVideoConferenceSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("video", $_1334287812);
+
+    protected static function OnVideoConferenceSettingsChange($f, $installFlag) {
+        self::DoInstall("video", $installFlag);
     }
-    protected static function OnBizProcSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("bizprocdesigner", $_1334287812);
+
+    protected static function OnBizProcSettingsChange($f, $installFlag) {
+        self::DoInstall("bizprocdesigner", $installFlag);
     }
-    protected static function OnListsSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("lists", $_1334287812);
+
+    protected static function OnListsSettingsChange($f, $installFlag) {
+        self::DoInstall("lists", $installFlag);
     }
-    protected static function OnWikiSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("wiki", $_1334287812);
+
+    protected static function OnWikiSettingsChange($f, $installFlag) {
+        self::DoInstall("wiki", $installFlag);
     }
-    protected static function OnSupportSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("support", $_1334287812);
+
+    protected static function OnSupportSettingsChange($f, $installFlag) {
+        self::DoInstall("support", $installFlag);
     }
-    protected static function OnControllerSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("controller", $_1334287812);
+
+    protected static function OnControllerSettingsChange($f, $installFlag) {
+        self::DoInstall("controller", $installFlag);
     }
-    protected static function OnAnalyticsSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("statistic", $_1334287812);
+
+    protected static function OnAnalyticsSettingsChange($f, $installFlag) {
+        self::DoInstall("statistic", $installFlag);
     }
-    protected static function OnVoteSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("vote", $_1334287812);
+
+    protected static function OnVoteSettingsChange($f, $installFlag) {
+        self::DoInstall("vote", $installFlag);
     }
-    protected static function OnFriendsSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) $_825079753 = "Y";
-        else $_825079753 = "N";
-        $_1227498242 = CSite::GetList(($_842872935 = ""), ($_1154089942 = ""), array("ACTIVE" => "Y"));
-        while ($_1124864495 = $_1227498242->Fetch()) {
-            if (COption::GetOptionString("socialnetwork", "allow_frields", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_frields", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_frields", $_825079753);
+
+    protected static function OnFriendsSettingsChange($f, $installFlag) {
+        if ($installFlag) $allow_flag = "Y";
+        else $allow_flag = "N";
+        $rsSite = CSite::GetList(($by = ""), ($order = ""), array("ACTIVE" => "Y"));
+        while ($arSite = $rsSite->Fetch()) {
+            if (COption::GetOptionString("socialnetwork", "allow_frields", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_frields", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_frields", $allow_flag);
             }
         }
     }
-    protected static function OnMicroBlogSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) $_825079753 = "Y";
-        else $_825079753 = "N";
-        $_1227498242 = CSite::GetList(($_842872935 = ""), ($_1154089942 = ""), array("ACTIVE" => "Y"));
-        while ($_1124864495 = $_1227498242->Fetch()) {
-            if (COption::GetOptionString("socialnetwork", "allow_microblog_user", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_microblog_user", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_microblog_user", $_825079753);
+
+    protected static function OnMicroBlogSettingsChange($f, $installFlag) {
+        if ($installFlag) $allow_flag = "Y";
+        else $allow_flag = "N";
+        $rsSite = CSite::GetList(($by = ""), ($order = ""), array("ACTIVE" => "Y"));
+        while ($arSite = $rsSite->Fetch()) {
+            if (COption::GetOptionString("socialnetwork", "allow_microblog_user", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_microblog_user", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_microblog_user", $allow_flag);
             }
-            if (COption::GetOptionString("socialnetwork", "allow_microblog_group", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_microblog_group", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_microblog_group", $_825079753);
-            }
-        }
-    }
-    protected static function OnPersonalFilesSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) $_825079753 = "Y";
-        else $_825079753 = "N";
-        $_1227498242 = CSite::GetList(($_842872935 = ""), ($_1154089942 = ""), array("ACTIVE" => "Y"));
-        while ($_1124864495 = $_1227498242->Fetch()) {
-            if (COption::GetOptionString("socialnetwork", "allow_files_user", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_files_user", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_files_user", $_825079753);
+            if (COption::GetOptionString("socialnetwork", "allow_microblog_group", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_microblog_group", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_microblog_group", $allow_flag);
             }
         }
     }
-    protected static function OnPersonalBlogSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) $_825079753 = "Y";
-        else $_825079753 = "N";
-        $_1227498242 = CSite::GetList(($_842872935 = ""), ($_1154089942 = ""), array("ACTIVE" => "Y"));
-        while ($_1124864495 = $_1227498242->Fetch()) {
-            if (COption::GetOptionString("socialnetwork", "allow_blog_user", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_blog_user", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_blog_user", $_825079753);
+
+    protected static function OnPersonalFilesSettingsChange($f, $installFlag) {
+        if ($installFlag) $allow_flag = "Y";
+        else $allow_flag = "N";
+        $rsSite = CSite::GetList(($by = ""), ($order = ""), array("ACTIVE" => "Y"));
+        while ($arSite = $rsSite->Fetch()) {
+            if (COption::GetOptionString("socialnetwork", "allow_files_user", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_files_user", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_files_user", $allow_flag);
             }
         }
     }
-    protected static function OnPersonalPhotoSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) $_825079753 = "Y";
-        else $_825079753 = "N";
-        $_1227498242 = CSite::GetList(($_842872935 = ""), ($_1154089942 = ""), array("ACTIVE" => "Y"));
-        while ($_1124864495 = $_1227498242->Fetch()) {
-            if (COption::GetOptionString("socialnetwork", "allow_photo_user", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_photo_user", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_photo_user", $_825079753);
+
+    protected static function OnPersonalBlogSettingsChange($f, $installFlag) {
+        if ($installFlag) $allow_flag = "Y";
+        else $allow_flag = "N";
+        $rsSite = CSite::GetList(($by = ""), ($order = ""), array("ACTIVE" => "Y"));
+        while ($arSite = $rsSite->Fetch()) {
+            if (COption::GetOptionString("socialnetwork", "allow_blog_user", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_blog_user", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_blog_user", $allow_flag);
             }
         }
     }
-    protected static function OnPersonalForumSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) $_825079753 = "Y";
-        else $_825079753 = "N";
-        $_1227498242 = CSite::GetList(($_842872935 = ""), ($_1154089942 = ""), array("ACTIVE" => "Y"));
-        while ($_1124864495 = $_1227498242->Fetch()) {
-            if (COption::GetOptionString("socialnetwork", "allow_forum_user", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_forum_user", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_forum_user", $_825079753);
+
+    protected static function OnPersonalPhotoSettingsChange($f, $installFlag) {
+        if ($installFlag) $allow_flag = "Y";
+        else $allow_flag = "N";
+        $rsSite = CSite::GetList(($by = ""), ($order = ""), array("ACTIVE" => "Y"));
+        while ($arSite = $rsSite->Fetch()) {
+            if (COption::GetOptionString("socialnetwork", "allow_photo_user", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_photo_user", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_photo_user", $allow_flag);
             }
         }
     }
-    protected static function OnTasksSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) $_825079753 = "Y";
-        else $_825079753 = "N";
-        $_1227498242 = CSite::GetList(($_842872935 = ""), ($_1154089942 = ""), array("ACTIVE" => "Y"));
-        while ($_1124864495 = $_1227498242->Fetch()) {
-            if (COption::GetOptionString("socialnetwork", "allow_tasks_user", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_tasks_user", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_tasks_user", $_825079753);
-            }
-            if (COption::GetOptionString("socialnetwork", "allow_tasks_group", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_tasks_group", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_tasks_group", $_825079753);
-            }
-        }
-        self::__169355962("tasks", $_1334287812);
-    }
-    protected static function OnCalendarSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) $_825079753 = "Y";
-        else $_825079753 = "N";
-        $_1227498242 = CSite::GetList(($_842872935 = ""), ($_1154089942 = ""), array("ACTIVE" => "Y"));
-        while ($_1124864495 = $_1227498242->Fetch()) {
-            if (COption::GetOptionString("socialnetwork", "allow_calendar_user", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_calendar_user", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_calendar_user", $_825079753);
-            }
-            if (COption::GetOptionString("socialnetwork", "allow_calendar_group", "Y", $_1124864495["ID"]) != $_825079753) {
-                COption::SetOptionString("socialnetwork", "allow_calendar_group", $_825079753, false, $_1124864495["ID"]);
-                COption::SetOptionString("socialnetwork", "allow_calendar_group", $_825079753);
+
+    protected static function OnPersonalForumSettingsChange($f, $installFlag) {
+        if ($installFlag) $allow_flag = "Y";
+        else $allow_flag = "N";
+        $rsSite = CSite::GetList(($by = ""), ($order = ""), array("ACTIVE" => "Y"));
+        while ($arSite = $rsSite->Fetch()) {
+            if (COption::GetOptionString("socialnetwork", "allow_forum_user", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_forum_user", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_forum_user", $allow_flag);
             }
         }
     }
-    protected static function OnSMTPSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("mail", $_1334287812);
-    }
-    protected static function OnExtranetSettingsChange($_252575629, $_1334287812) {
-        $_1226071562 = COption::GetOptionString("extranet", "extranet_site", "");
-        if ($_1226071562) {
-            $_1063930866 = new CSite;
-            $_1063930866->Update($_1226071562, array("ACTIVE" => ($_1334287812 ? "Y" : "N")));
+
+    protected static function OnTasksSettingsChange($f, $installFlag) {
+        if ($installFlag) $allow_flag = "Y";
+        else $allow_flag = "N";
+        $rsSite = CSite::GetList(($by = ""), ($order = ""), array("ACTIVE" => "Y"));
+        while ($arSite = $rsSite->Fetch()) {
+            if (COption::GetOptionString("socialnetwork", "allow_tasks_user", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_tasks_user", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_tasks_user", $allow_flag);
+            }
+            if (COption::GetOptionString("socialnetwork", "allow_tasks_group", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_tasks_group", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_tasks_group", $allow_flag);
+            }
         }
-        self::__169355962("extranet", $_1334287812);
+        self::DoInstall("tasks", $installFlag);
     }
-    protected static function OnDAVSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("dav", $_1334287812);
+
+    protected static function OnCalendarSettingsChange($f, $installFlag) {
+        if ($installFlag) $allow_flag = "Y";
+        else $allow_flag = "N";
+        $rsSite = CSite::GetList(($by = ""), ($order = ""), array("ACTIVE" => "Y"));
+        while ($arSite = $rsSite->Fetch()) {
+            if (COption::GetOptionString("socialnetwork", "allow_calendar_user", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_calendar_user", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_calendar_user", $allow_flag);
+            }
+            if (COption::GetOptionString("socialnetwork", "allow_calendar_group", "Y", $arSite["ID"]) != $allow_flag) {
+                COption::SetOptionString("socialnetwork", "allow_calendar_group", $allow_flag, false, $arSite["ID"]);
+                COption::SetOptionString("socialnetwork", "allow_calendar_group", $allow_flag);
+            }
+        }
     }
-    protected static function OntimemanSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("timeman", $_1334287812);
+
+    protected static function OnSMTPSettingsChange($f, $installFlag) {
+        self::DoInstall("mail", $installFlag);
     }
-    protected static function Onintranet_sharepointSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) {
+
+    protected static function OnExtranetSettingsChange($f, $installFlag) {
+        $extranet_site = COption::GetOptionString("extranet", "extranet_site", "");
+        if ($extranet_site) {
+            $SITE = new CSite;
+            $SITE->Update($extranet_site, array("ACTIVE" => ($installFlag ? "Y" : "N")));
+        }
+        self::DoInstall("extranet", $installFlag);
+    }
+
+    protected static function OnDAVSettingsChange($f, $installFlag) {
+        self::DoInstall("dav", $installFlag);
+    }
+
+    protected static function OntimemanSettingsChange($f, $installFlag) {
+        self::DoInstall("timeman", $installFlag);
+    }
+
+    protected static function Onintranet_sharepointSettingsChange($f, $installFlag) {
+        if ($installFlag) {
             RegisterModuleDependences("iblock", "OnAfterIBlockElementAdd", "intranet", "CIntranetEventHandlers", "SPRegisterUpdatedItem");
             RegisterModuleDependences("iblock", "OnAfterIBlockElementUpdate", "intranet", "CIntranetEventHandlers", "SPRegisterUpdatedItem");
             CAgent::AddAgent("CIntranetSharepoint::AgentLists();", "intranet", "N", 500);
@@ -525,27 +583,37 @@ class CBXFeatures {
             CAgent::RemoveAgent("CIntranetSharepoint::AgentUpdate();", "intranet");
         }
     }
-    protected static function OncrmSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) COption::SetOptionString("crm", "form_features", "Y");
-        self::__169355962("crm", $_1334287812);
+
+    protected static function OncrmSettingsChange($f, $installFlag) {
+        if ($installFlag) COption::SetOptionString("crm", "form_features", "Y");
+        self::DoInstall("crm", $installFlag);
     }
-    protected static function OnClusterSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("cluster", $_1334287812);
+
+    protected static function OnClusterSettingsChange($f, $installFlag) {
+        self::DoInstall("cluster", $installFlag);
     }
-    protected static function OnMultiSitesSettingsChange($_252575629, $_1334287812) {
-        if ($_1334287812) RegisterModuleDependences("main", "OnBeforeProlog", "main", "CWizardSolPanelIntranet", "ShowPanel", 100, "/modules/intranet/panel_button.php");
+
+    protected static function OnMultiSitesSettingsChange($f, $installFlag) {
+        if ($installFlag) RegisterModuleDependences("main", "OnBeforeProlog", "main", "CWizardSolPanelIntranet", "ShowPanel", 100, "/modules/intranet/panel_button.php");
         else UnRegisterModuleDependences("main", "OnBeforeProlog", "main", "CWizardSolPanelIntranet", "ShowPanel", "/modules/intranet/panel_button.php");
     }
-    protected static function OnIdeaSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("idea", $_1334287812);
+
+    protected static function OnIdeaSettingsChange($f, $installFlag) {
+        self::DoInstall("idea", $installFlag);
     }
-    protected static function OnMeetingSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("meeting", $_1334287812);
+
+    protected static function OnMeetingSettingsChange($f, $installFlag) {
+        self::DoInstall("meeting", $installFlag);
     }
-    protected static function OnXDImportSettingsChange($_252575629, $_1334287812) {
-        self::__169355962("xdimport", $_1334287812);
+
+    protected static function OnXDImportSettingsChange($f, $installFlag) {
+        self::DoInstall("xdimport", $installFlag);
     }
 }
+
+
+// Check Expired Date if the version is DEMO version.
+
 $_msg_expire = GetMessage("expire_mess2");
 $days_after_trial = 14;
 define("DEMO", "Y");
@@ -770,8 +838,8 @@ if (COption::GetOptionString("security", "session", "N") === "Y" &&
 }
 
 session_start();
-foreach(GetModuleEvents("main", "OnPageStart", true) as $_796304211)
-    ExecuteModuleEventEx($_796304211);
+foreach(GetModuleEvents("main", "OnPageStart", true) as $event)
+    ExecuteModuleEventEx($event);
 $USER = new CUser;
 $userSecurityPolicy = $USER->GetSecurityPolicy();
 $current_time = time();
@@ -913,8 +981,8 @@ if ($USER->IsAuthorized()) {
 if (defined("BX_CHECK_SHORT_URI") && BX_CHECK_SHORT_URI && CBXShortUri::CheckUri()) {
     die();
 }
-foreach(GetModuleEvents("main", "OnBeforeProlog", true) as $_796304211)
-    ExecuteModuleEventEx($_796304211);
+foreach(GetModuleEvents("main", "OnBeforeProlog", true) as $event)
+    ExecuteModuleEventEx($event);
 if ((!defined("NOT_CHECK_PERMISSIONS") || NOT_CHECK_PERMISSIONS !== true) && (!defined("NOT_CHECK_FILE_PERMISSIONS") || NOT_CHECK_FILE_PERMISSIONS !== true)) {
     $_1996776951 = $request->getScriptFile();
     if (!$USER->CanDoFileOperation("fm_view_file", array(SITE_ID, $_1996776951)) || (defined("NEED_AUTH") && NEED_AUTH && !$USER->IsAuthorized())) {
