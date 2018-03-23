@@ -89,8 +89,8 @@ else
 		</div>
 	<? elseif (isset($arParams['PROPS']['BACKGROUND']) && $arParams['PROPS']['BACKGROUND'] == 'stream'): ?>
 		<div class="embed-responsive embed-responsive-16by9">
-			<iframe id='yt_player_<?=$rnd?>' class="embed-responsive-item" src="https://www.youtube.com/embed/<?=$id?>?enablejsapi=1&controls=0&showinfo=0&rel=0<?=$arParams['AUTOPLAY']?>"></iframe>
-
+			<!-- <iframe id='yt_player_<?=$rnd?>' class="embed-responsive-item" src="https://www.youtube.com/embed/<?=$id?>?enablejsapi=1&controls=0&showinfo=0&rel=0<?=$arParams['AUTOPLAY']?>"></iframe>
+			-->
 			<? if ($arParams['PROPS']['LINK_URL'] != '' && !isset($arParams['PREVIEW'])): ?>
 				<a href="<?=$arParams['PROPS']['LINK_URL']?>" title="<?=$arParams['PROPS']['LINK_TITLE']?>"
 					target="<?=$arParams['PROPS']['LINK_TARGET']?>"

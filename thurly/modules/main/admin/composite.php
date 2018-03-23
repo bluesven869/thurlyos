@@ -302,7 +302,7 @@ $tabControl->BeginNextTab(array(
 				<? if (LANGUAGE_ID === "ru" || LANGUAGE_ID === "ua"):?>
 					<div class="adm-composite-video-container">
 						<div class="adm-composite-video-block">
-							<iframe class="adm-composite-video" src="https://www.youtube.com/embed/jo4A4Wqlksc" frameborder="0" allowfullscreen></iframe>
+							<!--<iframe class="adm-composite-video" src="https://www.youtube.com/embed/jo4A4Wqlksc" frameborder="0" allowfullscreen></iframe> -->
 						</div>
 					</div>
 				<? endif ?>
