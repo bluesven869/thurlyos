@@ -991,7 +991,7 @@ td.bx-layout-inner-inner-cont {
 
 .help-block {
 	cursor: pointer;
-	display: block;
+	display: none;
 	height: 63px;
 	overflow: hidden;
 	position: absolute;
