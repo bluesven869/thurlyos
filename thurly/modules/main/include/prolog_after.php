@@ -36,7 +36,7 @@ if(defined("DEMO") && DEMO=="Y")
 	$delta = $SiteExpireDate-time();
 	$daysToExpire = ($delta < 0? 0 : ceil($delta/86400));
 	$bSaas = (COption::GetOptionString('main', '~SAAS_MODE', "N") == "Y");
-
+	$daysToExpire = 60;
 	if(isset($bxProductConfig["saas"]))
 	{
 		if($bSaas)
